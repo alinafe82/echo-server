@@ -1,9 +1,14 @@
 import socket
 import sys
+import logging
 
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(name)s: %(message)s',
+                    )
 
 def client(msg, log_buffer=sys.stderr):
-    server_address = ('localhost', 10000)
+    logger = logging.getLogger('Echo_Client')
+    logger.debug('client')
     # TODO: Replace the following line with your code which will instantiate
     #       a TCP socket with IPv4 Addressing, call the socket you make 'sock'
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -22,6 +27,7 @@ def client(msg, log_buffer=sys.stderr):
         # TODO: send your message to the server here.
         print('sending {!r}'.format(msg))
         sock.sendall(msg)
+
         # TODO: the server should be sending you back your message as a series
         #       of 16-byte chunks. Accumulate the chunks you get to build the
         #       entire reply from the server. Make sure that you have received
@@ -31,7 +37,7 @@ def client(msg, log_buffer=sys.stderr):
         #       do it. This will help in debugging problems
         chunk = ''
         chunk_expected = len(msg)
-
+        logger.debug('len(msg) ->"%s"', chunk_expected)
         while chunk < chunk_expected:
             chunk = sock.recv(16)
             received_message += len(chunk)

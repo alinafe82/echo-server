@@ -1,9 +1,14 @@
 import socket
 import sys
+import logging
 
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(name)s: %(message)s',
+                    )
 
 def server(log_buffer=sys.stderr):
-
+    logger = logging.getLogger('Echo_Server')
+    logger.debug('server')
     # set an address for our server
     address = ('127.0.0.1', 10000)
     # TODO: Replace the following line with your code which will instantiate
@@ -24,7 +29,9 @@ def server(log_buffer=sys.stderr):
     # TODO: bind your new sock 'sock' to the address above and begin to listen
     #       for incoming connections
     sock.bind(address)
-    sock.listen(5)
+    sock.listen(10)
+
+    sock.settimeout(0.2)
     try:
         # the outer loop controls the creation of new connection sockets. The
         # server will handle each incoming connection one at a time.
@@ -49,16 +56,24 @@ def server(log_buffer=sys.stderr):
                     #       following line with your code.  It's only here as
                     #       a placeholder to prevent an error in string
                     #       formatting
-                    data = conn.recv(16)
-                    print('received "{0}"'.format(data.decode('utf8')))
-                    
+                    try:
+                        data = conn.recv(16)
+                        logger.debug('conn.recv()->"%s"', data)
+                        print('received "{0}"'.format(data.decode('utf8')))
+                    except socket.timeout:
+                        print('timed out, no more responses')
+                        break
+                    else:
+                        print('received "{0}"'.format(data.decode('utf8')))
                     # TODO: Send the data you received back to the client, log
                     # the fact using the print statement here.  It will help in
                     # debugging problems.
-
-                    print('sent "{0}"'.format(data.decode('utf8')))
-                    conn.sendall(data)
-
+                    if data:
+                        print('sent "{0}"'.format(data.decode('utf8')))
+                        conn.sendall(data)
+                    else:
+                        print('no data from', addr)
+                        break
                     # TODO: Check here to see whether you have received the end
                     # of the message. If you have, then break from the `while True`
                     # loop.
@@ -67,12 +82,6 @@ def server(log_buffer=sys.stderr):
                     # message is a trick we learned in the lesson: if you don't
                     # remember then ask your classmates or instructor for a clue.
                     # :)
-                    if data:
-                        print('sent "{0}"'.format(data.decode('utf8')))
-                        conn.sendall(data)
-                    else:
-                        print('no data from', addr)
-                        break
 
             finally:
                 # TODO: When the inner loop exits, this 'finally' clause will
@@ -81,14 +90,17 @@ def server(log_buffer=sys.stderr):
                 print(
                     'echo complete, client connection closed', file=log_buffer
                 )
+                conn.close()
 
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, SystemExit):
         # TODO: Use the python KeyboardInterrupt exception as a signal to
         #       close the server socket and exit from the server function.
         #       Replace the call to `pass` below, which is only there to
         #       prevent syntax problems
-        pass
-        print('quitting echo server', file=log_buffer)
+        print("W: interrupt received, stopping…")
+    finally:
+        # clean up
+        socket.close()
 
 
 if __name__ == '__main__':

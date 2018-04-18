@@ -100,7 +100,7 @@ def server(log_buffer=sys.stderr):
         print("W: interrupt received, stopping…")
     finally:
         # clean up
-        socket.close()
+        sock.close()
 
 
 if __name__ == '__main__':

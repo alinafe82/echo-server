@@ -6,6 +6,7 @@ logging.basicConfig(level=logging.DEBUG,
                     format='%(name)s: %(message)s',
                     )
 
+
 def server(log_buffer=sys.stderr):
     logger = logging.getLogger('Echo_Server')
     logger.debug('server')
@@ -14,6 +15,7 @@ def server(log_buffer=sys.stderr):
     # TODO: Replace the following line with your code which will instantiate
     #       a TCP socket with IPv4 Addressing, call the socket you make 'sock'
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    # or sock = socket.socket()
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
     # TODO: You may find that if you repeatedly run the server script it fails,
@@ -29,9 +31,9 @@ def server(log_buffer=sys.stderr):
     # TODO: bind your new sock 'sock' to the address above and begin to listen
     #       for incoming connections
     sock.bind(address)
-    sock.listen(10)
+    sock.listen(1)
 
-    sock.settimeout(0.2)
+    sock.settimeout(60)
     try:
         # the outer loop controls the creation of new connection sockets. The
         # server will handle each incoming connection one at a time.
@@ -58,6 +60,7 @@ def server(log_buffer=sys.stderr):
                     #       formatting
                     try:
                         data = conn.recv(16)
+                        # data = b''
                         logger.debug('conn.recv()->"%s"', data)
                         print('received "{0}"'.format(data.decode('utf8')))
                     except socket.timeout:
@@ -68,12 +71,11 @@ def server(log_buffer=sys.stderr):
                     # TODO: Send the data you received back to the client, log
                     # the fact using the print statement here.  It will help in
                     # debugging problems.
-                    if data:
-                        print('sent "{0}"'.format(data.decode('utf8')))
-                        conn.sendall(data)
-                    else:
-                        print('no data from', addr)
-                        break
+
+                    print('sent "{0}"'.format(data.decode('utf8')))
+                    #conn.sendall(data)
+                    conn.sendall("message received".encode('utf8'))
+
                     # TODO: Check here to see whether you have received the end
                     # of the message. If you have, then break from the `while True`
                     # loop.
@@ -82,6 +84,8 @@ def server(log_buffer=sys.stderr):
                     # message is a trick we learned in the lesson: if you don't
                     # remember then ask your classmates or instructor for a clue.
                     # :)
+                    if len(data) < 16:
+                        break
 
             finally:
                 # TODO: When the inner loop exits, this 'finally' clause will

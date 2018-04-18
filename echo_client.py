@@ -22,7 +22,7 @@ def client(msg, log_buffer=sys.stderr):
     sock.connect(server_address)
     # you can use this variable to accumulate the entire message received back
     # from the server
-    received_message = '    '
+    received_message = ''
 
     # this try/finally block exists purely to allow us to close the socket
     # when we are finished with it

@@ -30,7 +30,7 @@ def client(msg, log_buffer=sys.stderr):
         print('sending "{0}"'.format(msg), file=log_buffer)
         # TODO: send your message to the server here.
         #print('sending {!r}'.format(msg))
-        sock.sendall(msg)
+        sock.sendall(msg.encode())
 
         # TODO: the server should be sending you back your message as a series
         #       of 16-byte chunks. Accumulate the chunks you get to build the
